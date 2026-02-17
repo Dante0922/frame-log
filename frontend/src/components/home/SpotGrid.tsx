@@ -81,20 +81,20 @@ export const SpotGrid = () => {
     };
 
     return (
-        <section ref={containerRef} className="px-4 py-20 bg-brand-black relative z-20 rounded-t-[3rem] -mt-10 border-t border-white/5">
-            <div className="flex items-end justify-between mb-10 px-2">
+        <section ref={containerRef} className="px-4 md:px-8 lg:px-12 py-20 md:py-28 bg-brand-black relative z-20 rounded-t-[3rem] -mt-10 border-t border-white/5">
+            <div className="flex items-end justify-between mb-10 md:mb-14 px-2">
                 <div ref={titleRef}>
-                    <h3 className="text-2xl font-light text-white">New Arrivals</h3>
-                    <span className="text-xs text-gray-500 uppercase tracking-wider block mt-1">Scroll to explore</span>
+                    <h3 className="text-2xl md:text-3xl lg:text-4xl font-light text-white">New Arrivals</h3>
+                    <span className="text-xs md:text-sm text-gray-500 uppercase tracking-wider block mt-1">Scroll to explore</span>
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5">
                 {spots.map((spot, index) => (
                     <div
                         key={spot.id}
                         onClick={() => handleSpotClick(spot.id)}
-                        className={`scroll-item group relative aspect-[3/4] overflow-hidden rounded-2xl bg-brand-gray cursor-pointer ${index % 2 === 1 ? 'translate-y-10' : ''} ${index > 1 ? 'mt-6' : ''}`}
+                        className={`scroll-item group relative aspect-[3/4] overflow-hidden rounded-xl md:rounded-2xl bg-brand-gray cursor-pointer ${index % 2 === 1 ? 'md:translate-y-10' : ''} ${index > 1 ? 'mt-4 md:mt-6' : ''}`}
                     >
                         <div className="absolute inset-0 overflow-hidden">
                             <img
@@ -103,15 +103,15 @@ export const SpotGrid = () => {
                                 alt={spot.name}
                             />
                         </div>
-                        <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-brand-black/80 to-transparent">
-                            <span className="text-[10px] text-brand-gold uppercase tracking-wider block mb-1">{spot.region}</span>
-                            <h4 className="text-white font-medium">{spot.name}</h4>
+                        <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 bg-gradient-to-t from-brand-black/80 to-transparent">
+                            <span className="text-[9px] md:text-[10px] text-brand-gold uppercase tracking-wider block mb-1">{spot.region}</span>
+                            <h4 className="text-sm md:text-base text-white font-medium">{spot.name}</h4>
                         </div>
                     </div>
                 ))}
             </div>
 
-            <div className="h-40"></div>
+            <div className="h-32 md:h-40"></div>
         </section>
     );
 };

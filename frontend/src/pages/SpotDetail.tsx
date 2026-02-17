@@ -96,38 +96,38 @@ export const SpotDetail = () => {
       </div>
 
       {/* Content */}
-      <div className="detail-content px-6 py-10 bg-brand-black relative -mt-10 rounded-t-[2.5rem]">
+      <div className="detail-content px-6 md:px-10 lg:px-16 py-10 md:py-14 bg-brand-black relative -mt-10 rounded-t-[2.5rem] max-w-7xl mx-auto">
         {/* Basic Info */}
-        <div className="mb-10">
-          <span className="text-xs text-brand-gold uppercase tracking-wider block mb-2">
+        <div className="mb-10 md:mb-14">
+          <span className="text-xs md:text-sm text-brand-gold uppercase tracking-wider block mb-2">
             {spot.region}
           </span>
-          <h1 className="text-4xl font-serif italic text-white mb-4">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif italic text-white mb-4 md:mb-6">
             {spot.name}
           </h1>
-          <p className="text-gray-400 leading-relaxed mb-6">
+          <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-6 md:mb-8">
             {spot.description}
           </p>
 
           {/* Details */}
-          <div className="space-y-3">
+          <div className="space-y-3 md:space-y-4">
             <div className="flex items-start">
-              <span className="text-gray-500 text-sm w-24 flex-shrink-0">
+              <span className="text-gray-500 text-sm md:text-base w-24 md:w-32 flex-shrink-0">
                 위치
               </span>
-              <span className="text-white text-sm">{spot.address}</span>
+              <span className="text-white text-sm md:text-base">{spot.address}</span>
             </div>
             <div className="flex items-start">
-              <span className="text-gray-500 text-sm w-24 flex-shrink-0">
+              <span className="text-gray-500 text-sm md:text-base w-24 md:w-32 flex-shrink-0">
                 추천 시간
               </span>
-              <span className="text-white text-sm">{spot.recommendedTime}</span>
+              <span className="text-white text-sm md:text-base">{spot.recommendedTime}</span>
             </div>
             <div className="flex items-start">
-              <span className="text-gray-500 text-sm w-24 flex-shrink-0">
+              <span className="text-gray-500 text-sm md:text-base w-24 md:w-32 flex-shrink-0">
                 추천 계절
               </span>
-              <span className="text-white text-sm">
+              <span className="text-white text-sm md:text-base">
                 {spot.recommendedSeason}
               </span>
             </div>
@@ -136,9 +136,9 @@ export const SpotDetail = () => {
 
         {/* Photo Gallery */}
         {photos.length > 0 && (
-          <div className="mb-10">
-            <h2 className="text-2xl font-light text-white mb-4">Gallery</h2>
-            <div className="grid grid-cols-2 gap-3">
+          <div className="mb-10 md:mb-14">
+            <h2 className="text-2xl md:text-3xl font-light text-white mb-4 md:mb-6">Gallery</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
               {photos.map((photo) => (
                 <div
                   key={photo.id}
@@ -156,31 +156,31 @@ export const SpotDetail = () => {
         )}
 
         {/* Reviews Section */}
-        <div className="mb-10">
-          <h2 className="text-2xl font-light text-white mb-4">
+        <div className="mb-10 md:mb-14">
+          <h2 className="text-2xl md:text-3xl font-light text-white mb-4 md:mb-6">
             Reviews ({reviews.length})
           </h2>
 
           {reviews.length === 0 ? (
-            <p className="text-gray-500 text-sm text-center py-8">
+            <p className="text-gray-500 text-sm md:text-base text-center py-8 md:py-12">
               아직 리뷰가 없습니다. 첫 번째 리뷰를 작성해보세요!
             </p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {reviews.map((review) => (
                 <div
                   key={review.id}
-                  className="p-4 bg-white/5 rounded-xl border border-white/10"
+                  className="p-4 md:p-6 bg-white/5 rounded-xl border border-white/10"
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-brand-gold text-sm font-medium">
+                  <div className="flex items-center justify-between mb-2 md:mb-3">
+                    <span className="text-brand-gold text-sm md:text-base font-medium">
                       {review.nickname}
                     </span>
-                    <span className="text-gray-500 text-xs">
+                    <span className="text-gray-500 text-xs md:text-sm">
                       {new Date(review.createdAt).toLocaleDateString('ko-KR')}
                     </span>
                   </div>
-                  <p className="text-gray-300 text-sm leading-relaxed">
+                  <p className="text-gray-300 text-sm md:text-base leading-relaxed">
                     {review.content}
                   </p>
                 </div>
@@ -192,7 +192,7 @@ export const SpotDetail = () => {
         {/* Write Review Button */}
         <button
           onClick={() => navigate(`/spots/${spot.id}/review`)}
-          className="w-full py-5 bg-brand-gold text-brand-black font-bold uppercase tracking-widest text-xs rounded-full hover:bg-white transition-colors"
+          className="w-full md:max-w-md md:mx-auto md:block py-4 md:py-5 bg-brand-gold text-brand-black font-bold uppercase tracking-widest text-xs md:text-sm rounded-full hover:bg-white transition-colors"
         >
           Write a Review
         </button>

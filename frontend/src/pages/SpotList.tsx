@@ -46,17 +46,17 @@ export const SpotList = () => {
     <div ref={containerRef} className="min-h-screen bg-brand-black">
       <Header />
 
-      <main className="px-4 pt-24 pb-20">
-        <div className="mb-10">
-          <h1 className="text-4xl font-serif italic text-white mb-2">
+      <main className="px-4 md:px-8 lg:px-12 pt-24 md:pt-28 pb-20 max-w-7xl mx-auto">
+        <div className="mb-10 md:mb-14">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif italic text-white mb-2 md:mb-3">
             All Spots
           </h1>
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-400 text-sm md:text-base">
             전국의 출사지를 탐색해보세요
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
           {spots.map((spot: Spot) => (
             <div
               key={spot.id}
@@ -79,17 +79,17 @@ export const SpotList = () => {
                 </div>
               )}
 
-              <div className="absolute inset-x-0 bottom-0 p-6">
-                <span className="text-[10px] text-brand-gold uppercase tracking-wider block mb-2">
+              <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
+                <span className="text-[10px] md:text-xs text-brand-gold uppercase tracking-wider block mb-2">
                   {spot.region}
                 </span>
-                <h3 className="text-white text-2xl font-serif italic mb-2">
+                <h3 className="text-white text-xl md:text-2xl font-serif italic mb-2">
                   {spot.name}
                 </h3>
-                <p className="text-gray-300 text-sm line-clamp-2 mb-3">
+                <p className="text-gray-300 text-sm md:text-base line-clamp-2 mb-3">
                   {spot.description}
                 </p>
-                <div className="flex flex-wrap gap-2 text-xs text-gray-400">
+                <div className="flex flex-wrap gap-2 text-xs md:text-sm text-gray-400">
                   <span className="px-2 py-1 bg-white/10 rounded">
                     {spot.recommendedSeason}
                   </span>

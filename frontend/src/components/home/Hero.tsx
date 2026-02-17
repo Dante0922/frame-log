@@ -77,21 +77,21 @@ export const Hero = () => {
             </div>
 
             {/* Hero Content */}
-            <div className="relative z-10 w-full px-6 pb-32">
+            <div className="relative z-10 w-full px-6 md:px-12 lg:px-20 pb-24 md:pb-32">
                 <div className="overflow-hidden mb-2">
-                    <div ref={badgeRef} className="text-xs font-bold text-brand-gold uppercase tracking-[0.2em] transform translate-y-full">
+                    <div ref={badgeRef} className="text-xs md:text-sm font-bold text-brand-gold uppercase tracking-[0.2em] transform translate-y-full">
                         Weekly Best
                     </div>
                 </div>
 
-                <div className="overflow-hidden mb-2">
-                    <h2 ref={titleRef} className="text-5xl font-serif italic text-white leading-tight transform translate-y-full">
+                <div className="overflow-hidden mb-2 md:mb-3">
+                    <h2 ref={titleRef} className="text-4xl md:text-6xl lg:text-7xl font-serif italic text-white leading-tight transform translate-y-full">
                         {displayName}
                     </h2>
                 </div>
 
-                <div className="overflow-hidden mb-8">
-                    <p ref={descRef} className="text-gray-300 text-sm max-w-[80%] transform translate-y-full">
+                <div className="overflow-hidden mb-8 md:mb-10">
+                    <p ref={descRef} className="text-gray-300 text-sm md:text-base max-w-[90%] md:max-w-[70%] lg:max-w-[50%] transform translate-y-full">
                         {featuredSpot.description.split('.')[0]}.<br />
                         {featuredSpot.region}
                     </p>
@@ -101,7 +101,7 @@ export const Hero = () => {
                     <button
                         ref={btnRef}
                         onClick={handleExplore}
-                        className="px-6 py-3 border border-white/30 rounded-full text-sm text-white backdrop-blur-sm hover:bg-white hover:text-black transition-colors transform translate-y-full"
+                        className="px-6 py-3 md:px-8 md:py-4 border border-white/30 rounded-full text-sm md:text-base text-white backdrop-blur-sm hover:bg-white hover:text-black transition-colors transform translate-y-full"
                     >
                         Explore Now
                     </button>

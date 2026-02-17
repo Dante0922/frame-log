@@ -78,13 +78,13 @@ export const ReviewWrite = () => {
       </div>
 
       {/* Content */}
-      <div className="px-6 py-8">
+      <div className="px-6 md:px-10 py-8 md:py-12 max-w-3xl mx-auto">
         {/* Spot Info */}
-        <div className="mb-8">
-          <span className="text-xs text-brand-gold uppercase tracking-wider block mb-2">
+        <div className="mb-8 md:mb-10">
+          <span className="text-xs md:text-sm text-brand-gold uppercase tracking-wider block mb-2">
             {spot.region}
           </span>
-          <h2 className="text-3xl font-serif italic text-white mb-3">
+          <h2 className="text-2xl md:text-4xl font-serif italic text-white mb-3 md:mb-4">
             {spot.name}
           </h2>
           <div className="aspect-[16/9] overflow-hidden rounded-xl">
