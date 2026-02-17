@@ -1,45 +1,28 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { getAllSpots } from '../../utils/mockData';
+import type { Spot } from '../../types';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const spots = [
-    {
-        id: 1,
-        title: "Secret Forest",
-        location: "Jeju Island",
-        image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=80",
-        offset: false
-    },
-    {
-        id: 2,
-        title: "Urban Nights",
-        location: "Seoul",
-        image: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=600&q=80",
-        offset: true
-    },
-    {
-        id: 3,
-        title: "Sunset Beach",
-        location: "Busan",
-        image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
-        offset: false
-    },
-    {
-        id: 4,
-        title: "Old Palace",
-        location: "Gyeongju",
-        image: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=600&q=80",
-        offset: true
-    }
-];
-
 export const SpotGrid = () => {
+    const navigate = useNavigate();
     const containerRef = useRef<HTMLDivElement>(null);
     const titleRef = useRef<HTMLHeadingElement>(null);
+    const [spots, setSpots] = useState<Spot[]>([]);
 
     useEffect(() => {
+        // Load spots and exclude weekly featured
+        const allSpots = getAllSpots();
+        const nonFeaturedSpots = allSpots.filter(spot => !spot.isWeeklyFeatured).slice(0, 4);
+        setSpots(nonFeaturedSpots);
+    }, []);
+
+    useEffect(() => {
+        if (spots.length === 0) return;
+
         const ctx = gsap.context(() => {
             // Title Reveal
             gsap.fromTo(titleRef.current,
@@ -91,7 +74,11 @@ export const SpotGrid = () => {
         }, containerRef);
 
         return () => ctx.revert();
-    }, []);
+    }, [spots]);
+
+    const handleSpotClick = (spotId: number) => {
+        navigate(`/spots/${spotId}`);
+    };
 
     return (
         <section ref={containerRef} className="px-4 py-20 bg-brand-black relative z-20 rounded-t-[3rem] -mt-10 border-t border-white/5">
@@ -103,21 +90,22 @@ export const SpotGrid = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-                {spots.map((spot) => (
+                {spots.map((spot, index) => (
                     <div
                         key={spot.id}
-                        className={`scroll-item group relative aspect-[3/4] overflow-hidden rounded-2xl bg-brand-gray ${spot.offset ? 'translate-y-10' : ''} ${spot.id > 2 ? 'mt-6' : ''}`}
+                        onClick={() => handleSpotClick(spot.id)}
+                        className={`scroll-item group relative aspect-[3/4] overflow-hidden rounded-2xl bg-brand-gray cursor-pointer ${index % 2 === 1 ? 'translate-y-10' : ''} ${index > 1 ? 'mt-6' : ''}`}
                     >
                         <div className="absolute inset-0 overflow-hidden">
                             <img
-                                src={spot.image}
+                                src={spot.heroImageUrl}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 parallax-img"
-                                alt={spot.title}
+                                alt={spot.name}
                             />
                         </div>
                         <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-brand-black/80 to-transparent">
-                            <span className="text-[10px] text-brand-gold uppercase tracking-wider block mb-1">{spot.location}</span>
-                            <h4 className="text-white font-medium">{spot.title}</h4>
+                            <span className="text-[10px] text-brand-gold uppercase tracking-wider block mb-1">{spot.region}</span>
+                            <h4 className="text-white font-medium">{spot.name}</h4>
                         </div>
                     </div>
                 ))}
