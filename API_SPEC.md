@@ -1,35 +1,63 @@
-# frame-log 백엔드 API 명세서
+# frame-log 백엔드 API 명세서 (v0.2)
 
-프론트엔드 MVP 구현을 위해 필요한 REST API 목록입니다.
+프론트엔드 MVP와 연동되는 `frame-log` 백엔드 REST API 명세입니다.
+현재 구현 기준 문서이며, 변경 시 이 문서를 먼저 갱신합니다.
 
 ## 기본 정보
 
-- **Base URL**: `http://localhost:8080/api`
-- **Content-Type**: `application/json`
-- **인증**: 없음 (MVP 단계)
+- Base URL: `http://localhost:8080/api`
+- Content-Type: `application/json`
+- 인증: 없음 (MVP)
+
+## 공통 규칙
+
+### 1. 페이지네이션
+
+- `page` 기본값: `0`
+- `size` 기본값: `20`
+- `size` 최대값: `100`
+- `sort` 미지정 시:
+  - 출사지 목록: `createdAt,desc`
+  - 리뷰 목록: `createdAt,desc`
+
+### 2. 에러 응답 포맷
+
+모든 에러는 아래 구조를 따릅니다.
+
+```json
+{
+  "timestamp": "2026-02-17T04:30:12.345Z",
+  "status": 404,
+  "error": "Not Found",
+  "code": "SPOT_NOT_FOUND",
+  "message": "출사지를 찾을 수 없습니다. id=999",
+  "path": "/api/spots/999"
+}
+```
+
+주요 에러 코드:
+- `SPOT_NOT_FOUND`
+- `WEEKLY_SPOT_NOT_FOUND`
+- `SPOT_ID_MISMATCH`
+- `VALIDATION_FAILED`
+- `BAD_REQUEST`
+- `INTERNAL_SERVER_ERROR`
 
 ---
 
 ## API 목록
 
-### 1. 금주의 추천 출사지 조회
+### 1) 금주의 추천 출사지 조회
 
-홈 화면의 히어로 섹션에 표시될 이번 주 추천 출사지를 조회합니다.
+- Method/Path: `GET /api/spots/weekly`
+- 설명: 홈 히어로 영역용 이번 주 추천 출사지 조회
 
-**Endpoint**
-```
-GET /api/spots/weekly
-```
-
-**Request Parameters**
-- 없음
-
-**Response**
+**Response 200**
 ```json
 {
   "id": 1,
   "name": "미스틱 마운틴",
-  "description": "강원도의 깊은 산속, 새벽녘에만 허락되는 신비로운 풍경을 만나보세요...",
+  "description": "강원도의 깊은 산속...",
   "region": "강원도 평창",
   "address": "강원도 평창군 진부면 동산리 산1-1",
   "recommendedTime": "새벽 5-7시 (운해 발생 시)",
@@ -40,48 +68,23 @@ GET /api/spots/weekly
 }
 ```
 
-**Response Fields**
-| 필드 | 타입 | 필수 | 설명 |
-|------|------|------|------|
-| id | number | O | 출사지 ID |
-| name | string | O | 출사지 이름 |
-| description | string | O | 상세 설명 |
-| region | string | O | 지역 (예: "강원도 평창") |
-| address | string | O | 주소 |
-| recommendedTime | string | O | 추천 시간대 |
-| recommendedSeason | string | O | 추천 계절 |
-| heroImageUrl | string | O | 대표 이미지 URL |
-| isWeeklyFeatured | boolean | O | 금주 추천 여부 |
-| createdAt | string | O | 생성일시 (ISO 8601) |
-
 **Status Codes**
-- `200 OK`: 성공
-- `404 Not Found`: 추천 출사지가 없음
+- `200 OK`
+- `404 Not Found` (`WEEKLY_SPOT_NOT_FOUND`)
 
 ---
 
-### 2. 출사지 목록 조회
+### 2) 출사지 목록 조회
 
-전체 출사지 목록을 조회합니다.
+- Method/Path: `GET /api/spots`
+- 설명: 전체 출사지 목록 조회
 
-**Endpoint**
-```
-GET /api/spots
-```
+**Query Parameters**
+- `page` (number, optional)
+- `size` (number, optional)
+- `sort` (string, optional) 예: `createdAt,desc`
 
-**Request Parameters**
-| 파라미터 | 타입 | 필수 | 기본값 | 설명 |
-|---------|------|------|--------|------|
-| page | number | X | 0 | 페이지 번호 (0부터 시작) |
-| size | number | X | 20 | 페이지당 개수 |
-| sort | string | X | createdAt,desc | 정렬 기준 |
-
-**예시 Request**
-```
-GET /api/spots?page=0&size=10&sort=createdAt,desc
-```
-
-**Response**
+**Response 200**
 ```json
 {
   "spots": [
@@ -96,96 +99,43 @@ GET /api/spots?page=0&size=10&sort=createdAt,desc
       "heroImageUrl": "https://example.com/images/spot1.jpg",
       "isWeeklyFeatured": true,
       "createdAt": "2026-02-10T00:00:00Z"
-    },
-    {
-      "id": 2,
-      "name": "비밀의 숲",
-      "description": "제주도의 숨겨진 숲길...",
-      "region": "제주도",
-      "address": "제주특별자치도 서귀포시 남원읍 한남리",
-      "recommendedTime": "오전 9-11시 (빛이 들어올 때)",
-      "recommendedSeason": "사계절",
-      "heroImageUrl": "https://example.com/images/spot2.jpg",
-      "isWeeklyFeatured": false,
-      "createdAt": "2026-02-08T00:00:00Z"
     }
   ],
   "total": 5
 }
 ```
 
-**Response Fields**
-| 필드 | 타입 | 필수 | 설명 |
-|------|------|------|------|
-| spots | array | O | 출사지 배열 (Spot 객체) |
-| total | number | O | 전체 출사지 개수 |
-
 **Status Codes**
-- `200 OK`: 성공
+- `200 OK`
 
 ---
 
-### 3. 출사지 상세 조회
+### 3) 출사지 상세 조회
 
-특정 출사지의 상세 정보를 조회합니다.
-
-**Endpoint**
-```
-GET /api/spots/{id}
-```
+- Method/Path: `GET /api/spots/{id}`
+- 설명: 특정 출사지 상세 조회
 
 **Path Parameters**
-| 파라미터 | 타입 | 필수 | 설명 |
-|---------|------|------|------|
-| id | number | O | 출사지 ID |
+- `id` (number, required)
 
-**예시 Request**
-```
-GET /api/spots/1
-```
-
-**Response**
-```json
-{
-  "id": 1,
-  "name": "미스틱 마운틴",
-  "description": "강원도의 깊은 산속, 새벽녘에만 허락되는 신비로운 풍경을 만나보세요. 운해 위로 솟은 봉우리가 마치 섬처럼 떠있는 듯한 장관을 연출합니다. 사진가들에게는 이미 입소문이 난 곳이지만, 여전히 고요함을 간직하고 있습니다.",
-  "region": "강원도 평창",
-  "address": "강원도 평창군 진부면 동산리 산1-1",
-  "recommendedTime": "새벽 5-7시 (운해 발생 시)",
-  "recommendedSeason": "가을, 겨울 (9월~2월)",
-  "heroImageUrl": "https://example.com/images/spot1.jpg",
-  "isWeeklyFeatured": true,
-  "createdAt": "2026-02-10T00:00:00Z"
-}
-```
+**Response 200**
+- Spot 객체 단건 반환 (필드는 `GET /api/spots/weekly` 응답과 동일)
 
 **Status Codes**
-- `200 OK`: 성공
-- `404 Not Found`: 출사지를 찾을 수 없음
+- `200 OK`
+- `404 Not Found` (`SPOT_NOT_FOUND`)
 
 ---
 
-### 4. 출사지 사진 목록 조회
+### 4) 출사지 사진 목록 조회
 
-특정 출사지의 갤러리 사진 목록을 조회합니다.
-
-**Endpoint**
-```
-GET /api/spots/{id}/photos
-```
+- Method/Path: `GET /api/spots/{id}/photos`
+- 설명: 특정 출사지의 갤러리 사진 조회
 
 **Path Parameters**
-| 파라미터 | 타입 | 필수 | 설명 |
-|---------|------|------|------|
-| id | number | O | 출사지 ID |
+- `id` (number, required)
 
-**예시 Request**
-```
-GET /api/spots/1/photos
-```
-
-**Response**
+**Response 200**
 ```json
 {
   "photos": [
@@ -196,62 +146,32 @@ GET /api/spots/1/photos
       "caption": "운해가 펼쳐진 새벽 풍경",
       "sortOrder": 1,
       "createdAt": "2026-02-10T00:00:00Z"
-    },
-    {
-      "id": 2,
-      "spotId": 1,
-      "imageUrl": "https://example.com/photos/photo2.jpg",
-      "caption": "일출과 함께하는 산정상",
-      "sortOrder": 2,
-      "createdAt": "2026-02-10T00:00:00Z"
     }
   ],
-  "total": 2
+  "total": 3
 }
 ```
 
-**Response Fields - photos 배열**
-| 필드 | 타입 | 필수 | 설명 |
-|------|------|------|------|
-| id | number | O | 사진 ID |
-| spotId | number | O | 출사지 ID |
-| imageUrl | string | O | 이미지 URL |
-| caption | string | X | 사진 설명 |
-| sortOrder | number | O | 정렬 순서 |
-| createdAt | string | O | 생성일시 (ISO 8601) |
-
 **Status Codes**
-- `200 OK`: 성공
-- `404 Not Found`: 출사지를 찾을 수 없음
+- `200 OK`
+- `404 Not Found` (`SPOT_NOT_FOUND`)
 
 ---
 
-### 5. 리뷰 목록 조회
+### 5) 리뷰 목록 조회
 
-특정 출사지의 리뷰 목록을 조회합니다.
-
-**Endpoint**
-```
-GET /api/spots/{id}/reviews
-```
+- Method/Path: `GET /api/spots/{id}/reviews`
+- 설명: 특정 출사지 리뷰 목록 조회
 
 **Path Parameters**
-| 파라미터 | 타입 | 필수 | 설명 |
-|---------|------|------|------|
-| id | number | O | 출사지 ID |
+- `id` (number, required)
 
-**Request Parameters**
-| 파라미터 | 타입 | 필수 | 기본값 | 설명 |
-|---------|------|------|--------|------|
-| page | number | X | 0 | 페이지 번호 |
-| size | number | X | 20 | 페이지당 개수 |
+**Query Parameters**
+- `page` (number, optional)
+- `size` (number, optional)
+- `sort` (string, optional) 예: `createdAt,desc`
 
-**예시 Request**
-```
-GET /api/spots/1/reviews?page=0&size=10
-```
-
-**Response**
+**Response 200**
 ```json
 {
   "reviews": [
@@ -259,220 +179,110 @@ GET /api/spots/1/reviews?page=0&size=10
       "id": 1,
       "spotId": 1,
       "nickname": "새찍는사진사777",
-      "content": "운해가 정말 환상적이었어요! 새벽 5시에 도착했는데 완벽한 타이밍이었습니다. 다만 길이 험하니 등산화 필수입니다.",
+      "content": "운해가 환상적이었어요.",
       "createdAt": "2026-02-12T08:30:00Z"
-    },
-    {
-      "id": 2,
-      "spotId": 1,
-      "nickname": "풍경사냥꾼42",
-      "content": "3번 방문 끝에 드디어 운해를 만났습니다. 날씨 운이 중요한 것 같아요.",
-      "createdAt": "2026-02-11T14:20:00Z"
     }
   ],
-  "total": 2
+  "total": 3
 }
 ```
 
-**Response Fields - reviews 배열**
-| 필드 | 타입 | 필수 | 설명 |
-|------|------|------|------|
-| id | number | O | 리뷰 ID |
-| spotId | number | O | 출사지 ID |
-| nickname | string | O | 익명 닉네임 (예: "새찍는사진사777") |
-| content | string | O | 리뷰 내용 (최대 100자) |
-| createdAt | string | O | 생성일시 (ISO 8601) |
-
 **Status Codes**
-- `200 OK`: 성공
-- `404 Not Found`: 출사지를 찾을 수 없음
+- `200 OK`
+- `404 Not Found` (`SPOT_NOT_FOUND`)
 
 ---
 
-### 6. 리뷰 작성
+### 6) 리뷰 작성
 
-출사지에 대한 익명 리뷰를 작성합니다.
-
-**Endpoint**
-```
-POST /api/spots/{id}/reviews
-```
+- Method/Path: `POST /api/spots/{id}/reviews`
+- 설명: 익명 리뷰 생성
 
 **Path Parameters**
-| 파라미터 | 타입 | 필수 | 설명 |
-|---------|------|------|------|
-| id | number | O | 출사지 ID |
+- `id` (number, required)
 
 **Request Body**
 ```json
 {
   "spotId": 1,
   "nickname": "새찍는사진사777",
-  "content": "운해가 정말 환상적이었어요! 새벽 5시에 도착했는데 완벽한 타이밍이었습니다."
+  "content": "운해가 정말 좋았어요!"
 }
 ```
 
-**Request Fields**
-| 필드 | 타입 | 필수 | 제약사항 | 설명 |
-|------|------|------|---------|------|
-| spotId | number | O | - | 출사지 ID |
-| nickname | string | O | - | 익명 닉네임 |
-| content | string | O | 최대 100자 | 리뷰 내용 |
+**Request Field Rules**
+- `nickname`: 필수, 공백 불가, 최대 50자
+- `content`: 필수, 공백 불가, 최대 100자
+- `spotId`: optional (호환용)
+  - 값이 있으면 path의 `{id}`와 같아야 함
+  - 불일치 시 `400 SPOT_ID_MISMATCH`
 
-**Response**
+**Response 201**
 ```json
 {
   "id": 10,
   "spotId": 1,
   "nickname": "새찍는사진사777",
-  "content": "운해가 정말 환상적이었어요! 새벽 5시에 도착했는데 완벽한 타이밍이었습니다.",
+  "content": "운해가 정말 좋았어요!",
   "createdAt": "2026-02-17T12:34:56Z"
 }
 ```
 
 **Status Codes**
-- `201 Created`: 성공
-- `400 Bad Request`: 잘못된 요청 (내용이 100자 초과 등)
-- `404 Not Found`: 출사지를 찾을 수 없음
+- `201 Created`
+- `400 Bad Request` (`VALIDATION_FAILED`, `SPOT_ID_MISMATCH`)
+- `404 Not Found` (`SPOT_NOT_FOUND`)
 
 ---
 
-## 데이터베이스 스키마 참고
+## 데이터베이스 스키마
 
-### spots 테이블
-```sql
-CREATE TABLE spots (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(100) NOT NULL,
-  description TEXT NOT NULL,
-  region VARCHAR(50) NOT NULL,
-  address VARCHAR(200) NOT NULL,
-  recommended_time VARCHAR(100) NOT NULL,
-  recommended_season VARCHAR(100) NOT NULL,
-  hero_image_url VARCHAR(500) NOT NULL,
-  is_weekly_featured BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+Flyway 마이그레이션 파일:
+- `backend/src/main/resources/db/migration/V1__create_spot_tables.sql`
+- `backend/src/main/resources/db/migration/V2__seed_initial_data.sql`
+
+핵심 테이블:
+- `spots`
+- `spot_photos`
+- `spot_reviews`
+
+## CORS
+
+허용 Origin:
+- `http://localhost:5173`
+- `http://125.129.226.88:5173`
+
+설정 위치:
+- `backend/src/main/kotlin/com/framelog/backend/config/WebConfig.kt`
+
+## 실행 및 테스트
+
+### 실행
+```bash
+cd backend
+./gradlew bootRun
 ```
 
-### spot_photos 테이블
-```sql
-CREATE TABLE spot_photos (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  spot_id BIGINT NOT NULL,
-  image_url VARCHAR(500) NOT NULL,
-  caption VARCHAR(200),
-  sort_order INT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (spot_id) REFERENCES spots(id)
-);
+### 테스트
+```bash
+cd backend
+./gradlew test
 ```
 
-### spot_reviews 테이블
-```sql
-CREATE TABLE spot_reviews (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  spot_id BIGINT NOT NULL,
-  nickname VARCHAR(50) NOT NULL,
-  content VARCHAR(100) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (spot_id) REFERENCES spots(id)
-);
-```
-
----
-
-## CORS 설정
-
-프론트엔드가 백엔드 API를 호출할 수 있도록 CORS 설정이 필요합니다.
-
-**Spring Boot 설정 예시:**
-```kotlin
-@Configuration
-class WebConfig : WebMvcConfigurer {
-    override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/api/**")
-            .allowedOrigins("http://localhost:5173", "http://125.129.226.88:5173")
-            .allowedMethods("GET", "POST", "PUT", "DELETE")
-            .allowedHeaders("*")
-    }
-}
-```
-
----
-
-## 초기 데이터 (Seed Data)
-
-서비스 테스트를 위한 최소 5개의 출사지 데이터를 삽입해주세요.
-프론트엔드 Mock 데이터 참고: `frontend/src/utils/mockData.ts`
-
----
-
-## 환경변수
-
-**프론트엔드 (.env.development)**
-```
-VITE_API_BASE_URL=http://localhost:8080/api
-VITE_USE_MOCK_DATA=false
-```
-
-**백엔드 (application.yml)**
-```yaml
-server:
-  port: 8080
-
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/framelog
-    username: root
-    password: password
-```
-
----
-
-## 테스트 시나리오
-
-### 1. 금주 추천 조회
+### Smoke Test
 ```bash
 curl http://localhost:8080/api/spots/weekly
-```
-
-### 2. 출사지 목록 조회
-```bash
-curl http://localhost:8080/api/spots?page=0&size=10
-```
-
-### 3. 출사지 상세 조회
-```bash
+curl "http://localhost:8080/api/spots?page=0&size=10"
 curl http://localhost:8080/api/spots/1
-```
-
-### 4. 사진 목록 조회
-```bash
 curl http://localhost:8080/api/spots/1/photos
-```
-
-### 5. 리뷰 목록 조회
-```bash
 curl http://localhost:8080/api/spots/1/reviews
-```
-
-### 6. 리뷰 작성
-```bash
 curl -X POST http://localhost:8080/api/spots/1/reviews \
   -H "Content-Type: application/json" \
-  -d '{
-    "spotId": 1,
-    "nickname": "테스트사진가123",
-    "content": "정말 좋은 곳이에요!"
-  }'
+  -d '{"spotId":1,"nickname":"테스트사진가123","content":"정말 좋은 곳이에요!"}'
 ```
 
----
+## 참고
 
-## 참고 문서
-
-- **서비스 기획서**: `/SERVICE_PLAN.md`
-- **프론트엔드 타입 정의**: `/frontend/src/types/`
-- **Mock 데이터**: `/frontend/src/utils/mockData.ts`
-- **API 서비스**: `/frontend/src/services/`
+- 서비스 계획서: `SERVICE_PLAN.md`
+- 프론트 타입: `frontend/src/types/`
+- 프론트 서비스 레이어: `frontend/src/services/`
