@@ -1,48 +1,62 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { ReviewForm } from '../components/review/ReviewForm';
-import { getSpotById, saveReviewToLocal } from '../utils/mockData';
+import { fetchSpotDetail } from '../services/spotService';
+import { createReview } from '../services/reviewService';
 import type { Spot } from '../types';
 
 export const ReviewWrite = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [spot, setSpot] = useState<Spot | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
+    const loadSpot = async () => {
+      if (!id) return;
 
-    const spotData = getSpotById(Number(id));
-    if (!spotData) {
-      navigate('/spots');
-      return;
-    }
+      setLoading(true);
+      try {
+        const spotData = await fetchSpotDetail(Number(id));
+        if (!spotData) {
+          navigate('/spots');
+          return;
+        }
 
-    setSpot(spotData);
+        setSpot(spotData);
+      } catch (error) {
+        console.error('Failed to load spot:', error);
+        navigate('/spots');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSpot();
   }, [id, navigate]);
 
-  const handleSubmit = (content: string, nickname: string) => {
+  const handleSubmit = async (content: string, nickname: string) => {
     if (!id) return;
 
-    // Save review to localStorage
-    saveReviewToLocal({
-      spotId: Number(id),
-      nickname,
-      content,
-    });
+    try {
+      await createReview(Number(id), nickname, content);
 
-    // Navigate back to detail page
-    navigate(`/spots/${id}`, { replace: true });
+      // Navigate back to detail page
+      navigate(`/spots/${id}`, { replace: true });
+    } catch (error) {
+      console.error('Failed to create review:', error);
+      alert('리뷰 작성에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   const handleCancel = () => {
     navigate(-1);
   };
 
-  if (!spot) {
+  if (loading || !spot) {
     return (
       <div className="min-h-screen bg-brand-black flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+        <div className="text-white text-lg">로딩 중...</div>
       </div>
     );
   }

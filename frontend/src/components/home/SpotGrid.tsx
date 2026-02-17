@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { getAllSpots } from '../../utils/mockData';
+import { fetchSpotList } from '../../services/spotService';
 import type { Spot } from '../../types';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -14,10 +14,12 @@ export const SpotGrid = () => {
     const [spots, setSpots] = useState<Spot[]>([]);
 
     useEffect(() => {
-        // Load spots and exclude weekly featured
-        const allSpots = getAllSpots();
-        const nonFeaturedSpots = allSpots.filter(spot => !spot.isWeeklyFeatured).slice(0, 4);
-        setSpots(nonFeaturedSpots);
+        const loadSpots = async () => {
+            const allSpots = await fetchSpotList();
+            const nonFeaturedSpots = allSpots.filter(spot => !spot.isWeeklyFeatured).slice(0, 4);
+            setSpots(nonFeaturedSpots);
+        };
+        loadSpots();
     }, []);
 
     useEffect(() => {

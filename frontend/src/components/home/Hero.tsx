@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { getWeeklyFeaturedSpot } from '../../utils/mockData';
+import { fetchWeeklyFeaturedSpot } from '../../services/spotService';
 import type { Spot } from '../../types';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -16,10 +16,16 @@ export const Hero = () => {
     const descRef = useRef<HTMLParagraphElement>(null);
     const btnRef = useRef<HTMLButtonElement>(null);
     const [featuredSpot, setFeaturedSpot] = useState<Spot | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const spot = getWeeklyFeaturedSpot();
-        setFeaturedSpot(spot || null);
+        const loadSpot = async () => {
+            setLoading(true);
+            const spot = await fetchWeeklyFeaturedSpot();
+            setFeaturedSpot(spot);
+            setLoading(false);
+        };
+        loadSpot();
     }, []);
 
     useEffect(() => {
@@ -50,7 +56,7 @@ export const Hero = () => {
         return () => ctx.revert();
     }, [featuredSpot]);
 
-    if (!featuredSpot) {
+    if (loading || !featuredSpot) {
         return null;
     }
 

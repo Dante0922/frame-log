@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Header } from '../components/layout/Header';
-import { getAllSpots } from '../utils/mockData';
+import { fetchSpotList } from '../services/spotService';
 import type { Spot } from '../types';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -11,9 +11,22 @@ gsap.registerPlugin(ScrollTrigger);
 export const SpotList = () => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
-  const spots = getAllSpots();
+  const [spots, setSpots] = useState<Spot[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const loadSpots = async () => {
+      setLoading(true);
+      const data = await fetchSpotList();
+      setSpots(data);
+      setLoading(false);
+    };
+    loadSpots();
+  }, []);
+
+  useEffect(() => {
+    if (loading) return;
+
     const ctx = gsap.context(() => {
       // Grid Items Reveal
       const items = gsap.utils.toArray<HTMLElement>('.spot-card');
@@ -36,11 +49,22 @@ export const SpotList = () => {
     }, containerRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [loading]);
 
   const handleSpotClick = (spotId: number) => {
     navigate(`/spots/${spotId}`);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-brand-black">
+        <Header />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-white text-lg">로딩 중...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div ref={containerRef} className="min-h-screen bg-brand-black">

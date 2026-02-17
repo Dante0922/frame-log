@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
-import { getSpotById, getPhotosBySpotId, getAllReviews } from '../utils/mockData';
+import { fetchSpotDetail, fetchSpotPhotos } from '../services/spotService';
+import { fetchReviews } from '../services/reviewService';
 import type { Spot, SpotPhoto, SpotReview } from '../types';
 
 export const SpotDetail = () => {
@@ -11,19 +12,36 @@ export const SpotDetail = () => {
   const [spot, setSpot] = useState<Spot | null>(null);
   const [photos, setPhotos] = useState<SpotPhoto[]>([]);
   const [reviews, setReviews] = useState<SpotReview[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
+    const loadSpotDetail = async () => {
+      if (!id) return;
 
-    const spotData = getSpotById(Number(id));
-    if (!spotData) {
-      navigate('/spots');
-      return;
-    }
+      setLoading(true);
+      try {
+        const spotData = await fetchSpotDetail(Number(id));
+        if (!spotData) {
+          navigate('/spots');
+          return;
+        }
 
-    setSpot(spotData);
-    setPhotos(getPhotosBySpotId(Number(id)));
-    setReviews(getAllReviews(Number(id)));
+        setSpot(spotData);
+        const [photosData, reviewsData] = await Promise.all([
+          fetchSpotPhotos(Number(id)),
+          fetchReviews(Number(id)),
+        ]);
+        setPhotos(photosData);
+        setReviews(reviewsData);
+      } catch (error) {
+        console.error('Failed to load spot detail:', error);
+        navigate('/spots');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSpotDetail();
   }, [id, navigate]);
 
   useEffect(() => {
@@ -48,10 +66,10 @@ export const SpotDetail = () => {
     return () => ctx.revert();
   }, [spot]);
 
-  if (!spot) {
+  if (loading || !spot) {
     return (
       <div className="min-h-screen bg-brand-black flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+        <div className="text-white text-lg">로딩 중...</div>
       </div>
     );
   }
