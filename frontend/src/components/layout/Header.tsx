@@ -20,7 +20,7 @@ export const Header = () => {
             <h1
                 ref={logoRef}
                 onClick={() => navigate('/')}
-                className="font-serif text-xl md:text-2xl italic tracking-wider opacity-0 cursor-pointer"
+                className="font-bold text-xl md:text-2xl tracking-tight opacity-0 cursor-pointer"
             >
                 frame-log
             </h1>

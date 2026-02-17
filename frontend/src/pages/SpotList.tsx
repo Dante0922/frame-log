@@ -48,8 +48,8 @@ export const SpotList = () => {
 
       <main className="px-4 md:px-8 lg:px-12 pt-24 md:pt-28 pb-20 max-w-7xl mx-auto">
         <div className="mb-10 md:mb-14">
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif italic text-white mb-2 md:mb-3">
-            All Spots
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-2 md:mb-3">
+            전체 출사지
           </h1>
           <p className="text-gray-400 text-sm md:text-base">
             전국의 출사지를 탐색해보세요
@@ -74,8 +74,8 @@ export const SpotList = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-brand-black via-brand-black/50 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
               {spot.isWeeklyFeatured && (
-                <div className="absolute top-4 right-4 px-3 py-1 bg-brand-gold text-brand-black text-xs font-bold uppercase tracking-wider rounded-full">
-                  Weekly
+                <div className="absolute top-4 right-4 px-3 py-1 bg-brand-gold text-brand-black text-xs font-bold tracking-wide rounded-full">
+                  이번 주
                 </div>
               )}
 

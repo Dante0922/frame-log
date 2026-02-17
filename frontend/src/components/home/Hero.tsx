@@ -79,13 +79,13 @@ export const Hero = () => {
             {/* Hero Content */}
             <div className="relative z-10 w-full px-6 md:px-12 lg:px-20 pb-24 md:pb-32">
                 <div className="overflow-hidden mb-2">
-                    <div ref={badgeRef} className="text-xs md:text-sm font-bold text-brand-gold uppercase tracking-[0.2em] transform translate-y-full">
-                        Weekly Best
+                    <div ref={badgeRef} className="text-xs md:text-sm font-bold text-brand-gold tracking-wide transform translate-y-full">
+                        이번 주 추천
                     </div>
                 </div>
 
                 <div className="overflow-hidden mb-2 md:mb-3">
-                    <h2 ref={titleRef} className="text-4xl md:text-6xl lg:text-7xl font-serif italic text-white leading-tight transform translate-y-full">
+                    <h2 ref={titleRef} className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight transform translate-y-full">
                         {displayName}
                     </h2>
                 </div>
@@ -101,9 +101,9 @@ export const Hero = () => {
                     <button
                         ref={btnRef}
                         onClick={handleExplore}
-                        className="px-6 py-3 md:px-8 md:py-4 border border-white/30 rounded-full text-sm md:text-base text-white backdrop-blur-sm hover:bg-white hover:text-black transition-colors transform translate-y-full"
+                        className="px-6 py-3 md:px-8 md:py-4 border border-white/30 rounded-full text-sm md:text-base font-medium text-white backdrop-blur-sm hover:bg-white hover:text-black transition-colors transform translate-y-full"
                     >
-                        Explore Now
+                        자세히 보기
                     </button>
                 </div>
             </div>

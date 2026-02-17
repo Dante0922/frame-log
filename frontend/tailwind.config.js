@@ -7,8 +7,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Pretendard', '-apple-system', 'system-ui', 'sans-serif'],
-        serif: ['Merriweather', 'serif'],
+        sans: ['Pretendard Variable', 'Pretendard', '-apple-system', 'system-ui', 'sans-serif'],
       },
       colors: {
         brand: {

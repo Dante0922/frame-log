@@ -84,8 +84,8 @@ export const SpotGrid = () => {
         <section ref={containerRef} className="px-4 md:px-8 lg:px-12 py-20 md:py-28 bg-brand-black relative z-20 rounded-t-[3rem] -mt-10 border-t border-white/5">
             <div className="flex items-end justify-between mb-10 md:mb-14 px-2">
                 <div ref={titleRef}>
-                    <h3 className="text-2xl md:text-3xl lg:text-4xl font-light text-white">New Arrivals</h3>
-                    <span className="text-xs md:text-sm text-gray-500 uppercase tracking-wider block mt-1">Scroll to explore</span>
+                    <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">최근 등록</h3>
+                    <span className="text-xs md:text-sm text-gray-500 tracking-wide block mt-1">스크롤하여 둘러보기</span>
                 </div>
             </div>
 

@@ -71,8 +71,8 @@ export const ReviewWrite = () => {
               />
             </svg>
           </button>
-          <h1 className="text-xl font-serif italic text-white">
-            Write a Review
+          <h1 className="text-xl font-bold text-white">
+            리뷰 작성
           </h1>
         </div>
       </div>
@@ -84,7 +84,7 @@ export const ReviewWrite = () => {
           <span className="text-xs md:text-sm text-brand-gold uppercase tracking-wider block mb-2">
             {spot.region}
           </span>
-          <h2 className="text-2xl md:text-4xl font-serif italic text-white mb-3 md:mb-4">
+          <h2 className="text-2xl md:text-4xl font-bold text-white mb-3 md:mb-4">
             {spot.name}
           </h2>
           <div className="aspect-[16/9] overflow-hidden rounded-xl">

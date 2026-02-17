@@ -89,8 +89,8 @@ export const SpotDetail = () => {
         </button>
 
         {spot.isWeeklyFeatured && (
-          <div className="absolute top-6 right-6 px-4 py-2 bg-brand-gold text-brand-black text-xs font-bold uppercase tracking-wider rounded-full">
-            Weekly Best
+          <div className="absolute top-6 right-6 px-4 py-2 bg-brand-gold text-brand-black text-xs font-bold tracking-wide rounded-full">
+            이번 주 추천
           </div>
         )}
       </div>
@@ -102,7 +102,7 @@ export const SpotDetail = () => {
           <span className="text-xs md:text-sm text-brand-gold uppercase tracking-wider block mb-2">
             {spot.region}
           </span>
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif italic text-white mb-4 md:mb-6">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 md:mb-6">
             {spot.name}
           </h1>
           <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-6 md:mb-8">
@@ -137,7 +137,7 @@ export const SpotDetail = () => {
         {/* Photo Gallery */}
         {photos.length > 0 && (
           <div className="mb-10 md:mb-14">
-            <h2 className="text-2xl md:text-3xl font-light text-white mb-4 md:mb-6">Gallery</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 md:mb-6">갤러리</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
               {photos.map((photo) => (
                 <div
@@ -157,8 +157,8 @@ export const SpotDetail = () => {
 
         {/* Reviews Section */}
         <div className="mb-10 md:mb-14">
-          <h2 className="text-2xl md:text-3xl font-light text-white mb-4 md:mb-6">
-            Reviews ({reviews.length})
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 md:mb-6">
+            리뷰 ({reviews.length})
           </h2>
 
           {reviews.length === 0 ? (
@@ -192,9 +192,9 @@ export const SpotDetail = () => {
         {/* Write Review Button */}
         <button
           onClick={() => navigate(`/spots/${spot.id}/review`)}
-          className="w-full md:max-w-md md:mx-auto md:block py-4 md:py-5 bg-brand-gold text-brand-black font-bold uppercase tracking-widest text-xs md:text-sm rounded-full hover:bg-white transition-colors"
+          className="w-full md:max-w-md md:mx-auto md:block py-4 md:py-5 bg-brand-gold text-brand-black font-bold tracking-wide text-sm md:text-base rounded-full hover:bg-white transition-colors"
         >
-          Write a Review
+          리뷰 작성하기
         </button>
       </div>
     </div>
