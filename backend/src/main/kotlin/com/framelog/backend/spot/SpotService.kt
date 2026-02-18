@@ -1,6 +1,5 @@
 package com.framelog.backend.spot
 
-import com.framelog.backend.common.error.BadRequestException
 import com.framelog.backend.common.error.ErrorCode
 import com.framelog.backend.common.error.NotFoundException
 import com.framelog.backend.photo.SpotPhotoListResponse
@@ -34,7 +33,10 @@ class SpotService(
 
     @Transactional(readOnly = true)
     fun getSpotList(pageable: Pageable): SpotListResponse {
-        val normalizedPageable = normalizePageable(pageable, defaultSort = Sort.by(Sort.Direction.DESC, "createdAt"))
+        val normalizedPageable = normalizePageable(
+            pageable,
+            defaultSort = Sort.by(Sort.Direction.DESC, "createdAt")
+        )
         val spotPage = spotRepository.findAll(normalizedPageable)
 
         return SpotListResponse(
@@ -64,7 +66,8 @@ class SpotService(
     ): ReviewListResponse {
         ensureSpotExists(spotId)
 
-        val normalizedPageable = normalizePageable(pageable, defaultSort = Sort.by(Sort.Direction.DESC, "createdAt", "id"))
+        val normalizedPageable =
+            normalizePageable(pageable, defaultSort = Sort.by(Sort.Direction.DESC, "createdAt", "id"))
         val reviewPage = spotReviewRepository.findBySpotIdOrderByCreatedAtDescIdDesc(spotId, normalizedPageable)
 
         return ReviewListResponse(
@@ -78,7 +81,6 @@ class SpotService(
         spotId: Long,
         request: CreateReviewRequest,
     ): SpotReviewResponse {
-        validateSpotId(spotId, request.spotId)
         val spot = findSpotById(spotId)
 
         val review = SpotReviewEntity(
@@ -104,18 +106,6 @@ class SpotService(
             throw NotFoundException(
                 errorCode = ErrorCode.SPOT_NOT_FOUND,
                 message = "출사지를 찾을 수 없습니다. id=$spotId",
-            )
-        }
-    }
-
-    private fun validateSpotId(
-        pathSpotId: Long,
-        bodySpotId: Long?,
-    ) {
-        if (bodySpotId != null && bodySpotId != pathSpotId) {
-            throw BadRequestException(
-                errorCode = ErrorCode.SPOT_ID_MISMATCH,
-                message = "path spotId($pathSpotId)와 body spotId($bodySpotId)가 다릅니다.",
             )
         }
     }
