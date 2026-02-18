@@ -1,6 +1,7 @@
 package com.framelog.backend.common.error
 
 import jakarta.servlet.http.HttpServletRequest
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -12,6 +13,7 @@ import java.time.Instant
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
+    private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
     @ExceptionHandler(ApiException::class)
     fun handleApiException(
@@ -19,6 +21,25 @@ class GlobalExceptionHandler {
         request: HttpServletRequest,
     ): ResponseEntity<ApiErrorResponse> {
         val status = exception.errorCode.status
+        if (status.is5xxServerError) {
+            logger.error(
+                "API exception: method={}, path={}, code={}, message={}",
+                request.method,
+                request.requestURI,
+                exception.errorCode.code,
+                exception.message,
+                exception,
+            )
+        } else {
+            logger.warn(
+                "API exception: method={}, path={}, code={}, message={}",
+                request.method,
+                request.requestURI,
+                exception.errorCode.code,
+                exception.message,
+            )
+        }
+
         return ResponseEntity
             .status(status)
             .body(
@@ -43,6 +64,14 @@ class GlobalExceptionHandler {
             .firstOrNull { it is FieldError } as? FieldError
 
         val message = fieldError?.defaultMessage ?: ErrorCode.VALIDATION_FAILED.defaultMessage
+        logger.warn(
+            "Validation failed: method={}, path={}, code={}, message={}",
+            request.method,
+            request.requestURI,
+            ErrorCode.VALIDATION_FAILED.code,
+            message,
+        )
+
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(
@@ -59,9 +88,18 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleMessageNotReadable(
+        exception: HttpMessageNotReadableException,
         request: HttpServletRequest,
     ): ResponseEntity<ApiErrorResponse> {
         val status = HttpStatus.BAD_REQUEST
+        logger.warn(
+            "Bad request body: method={}, path={}, code={}",
+            request.method,
+            request.requestURI,
+            ErrorCode.BAD_REQUEST.code,
+            exception,
+        )
+
         return ResponseEntity
             .status(status)
             .body(
@@ -78,9 +116,18 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleUnhandledException(
+        exception: Exception,
         request: HttpServletRequest,
     ): ResponseEntity<ApiErrorResponse> {
         val status = HttpStatus.INTERNAL_SERVER_ERROR
+        logger.error(
+            "Unhandled exception: method={}, path={}, code={}",
+            request.method,
+            request.requestURI,
+            ErrorCode.INTERNAL_SERVER_ERROR.code,
+            exception,
+        )
+
         return ResponseEntity
             .status(status)
             .body(

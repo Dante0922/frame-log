@@ -18,8 +18,6 @@ data class ReviewListResponse(
 )
 
 data class CreateReviewRequest(
-    val spotId: Long? = null,
-
     @field:NotBlank(message = "nickname은 필수값입니다.")
     @field:Size(max = 50, message = "nickname은 최대 50자까지 입력할 수 있습니다.")
     val nickname: String,

@@ -38,7 +38,6 @@
 주요 에러 코드:
 - `SPOT_NOT_FOUND`
 - `WEEKLY_SPOT_NOT_FOUND`
-- `SPOT_ID_MISMATCH`
 - `VALIDATION_FAILED`
 - `BAD_REQUEST`
 - `INTERNAL_SERVER_ERROR`
@@ -204,7 +203,6 @@
 **Request Body**
 ```json
 {
-  "spotId": 1,
   "nickname": "새찍는사진사777",
   "content": "운해가 정말 좋았어요!"
 }
@@ -213,9 +211,6 @@
 **Request Field Rules**
 - `nickname`: 필수, 공백 불가, 최대 50자
 - `content`: 필수, 공백 불가, 최대 100자
-- `spotId`: optional (호환용)
-  - 값이 있으면 path의 `{id}`와 같아야 함
-  - 불일치 시 `400 SPOT_ID_MISMATCH`
 
 **Response 201**
 ```json
@@ -230,7 +225,7 @@
 
 **Status Codes**
 - `201 Created`
-- `400 Bad Request` (`VALIDATION_FAILED`, `SPOT_ID_MISMATCH`)
+- `400 Bad Request` (`VALIDATION_FAILED`)
 - `404 Not Found` (`SPOT_NOT_FOUND`)
 
 ---
@@ -249,11 +244,14 @@ Flyway 마이그레이션 파일:
 ## CORS
 
 허용 Origin:
-- `http://localhost:5173`
-- `http://125.129.226.88:5173`
+- 기본값: `http://localhost:5173`, `http://125.129.226.88:5173`
+- 환경변수: `CORS_ALLOWED_ORIGINS` (콤마 구분)
+  - 예시: `CORS_ALLOWED_ORIGINS=http://localhost:5173,https://frame-log.example.com`
 
 설정 위치:
 - `backend/src/main/kotlin/com/framelog/backend/config/WebConfig.kt`
+- `backend/src/main/kotlin/com/framelog/backend/config/CorsProperties.kt`
+- `backend/src/main/resources/application.yml`
 
 ## 실행 및 테스트
 
@@ -278,7 +276,7 @@ curl http://localhost:8080/api/spots/1/photos
 curl http://localhost:8080/api/spots/1/reviews
 curl -X POST http://localhost:8080/api/spots/1/reviews \
   -H "Content-Type: application/json" \
-  -d '{"spotId":1,"nickname":"테스트사진가123","content":"정말 좋은 곳이에요!"}'
+  -d '{"nickname":"테스트사진가123","content":"정말 좋은 곳이에요!"}'
 ```
 
 ## 참고

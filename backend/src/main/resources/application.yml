@@ -20,3 +20,6 @@ spring:
     baseline-on-migrate: true
     locations: classpath:db/migration
 
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://125.129.226.88:5173}

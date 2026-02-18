@@ -5,14 +5,18 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-class WebConfig : WebMvcConfigurer {
+class WebConfig(
+    private val corsProperties: CorsProperties,
+) : WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
+        val allowedOrigins = corsProperties.allowedOrigins
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .toTypedArray()
+
         registry
             .addMapping("/api/**")
-            .allowedOrigins(
-                "http://localhost:5173",
-                "http://125.129.226.88:5173",
-            )
+            .allowedOrigins(*allowedOrigins)
             .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             .allowedHeaders("*")
     }
