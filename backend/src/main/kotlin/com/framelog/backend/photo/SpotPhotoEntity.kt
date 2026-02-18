@@ -26,6 +26,9 @@ class SpotPhotoEntity(
     @Column(name = "image_url", nullable = false, length = 500)
     val imageUrl: String,
 
+    @Column(name = "image_path", length = 500)
+    val imagePath: String? = null,
+
     @Column(length = 200)
     val caption: String? = null,
 

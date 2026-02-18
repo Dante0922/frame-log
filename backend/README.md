@@ -24,6 +24,25 @@ cd backend
 
 기본 실행 포트는 `8080`입니다.
 
+### Docker MySQL 사용 시
+
+루트(`frame-log/`)에 있는 `docker-compose.yml`은 MySQL 데이터를 아래 경로에 저장합니다.
+
+- `~/Desktop/Database/frame-log/mysql`
+
+처음 한 번 디렉토리를 만들어두세요.
+
+```bash
+mkdir -p ~/Desktop/Database/frame-log/mysql
+```
+
+MySQL 실행:
+
+```bash
+cd ..
+docker compose up -d mysql
+```
+
 ## 3. 환경변수
 
 기본값이 설정되어 있어 로컬에서는 선택적으로만 지정하면 됩니다.

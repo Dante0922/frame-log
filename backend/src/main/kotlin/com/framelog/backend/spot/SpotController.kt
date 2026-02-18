@@ -1,5 +1,6 @@
 package com.framelog.backend.spot
 
+import com.framelog.backend.highlight.SpotSeasonalHighlightResponse
 import com.framelog.backend.photo.SpotPhotoListResponse
 import com.framelog.backend.review.CreateReviewRequest
 import com.framelog.backend.review.ReviewListResponse
@@ -51,4 +52,9 @@ class SpotController(
         @PathVariable spotId: Long,
         @Valid @RequestBody request: CreateReviewRequest,
     ): SpotReviewResponse = spotService.createReview(spotId, request)
+
+    @GetMapping("/{spotId}/highlights")
+    fun getSpotHighlights(
+        @PathVariable spotId: Long,
+    ): List<SpotSeasonalHighlightResponse> = spotService.getSpotHighlights(spotId)
 }

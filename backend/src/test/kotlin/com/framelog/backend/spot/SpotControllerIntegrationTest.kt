@@ -1,11 +1,13 @@
 package com.framelog.backend.spot
 
+import com.framelog.backend.config.TestConfig
 import com.framelog.backend.review.SpotReviewEntity
 import com.framelog.backend.review.SpotReviewRepository
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
+@Import(TestConfig::class)
 class SpotControllerIntegrationTest {
 
     @Autowired

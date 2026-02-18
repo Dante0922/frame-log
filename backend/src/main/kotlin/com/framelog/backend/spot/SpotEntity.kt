@@ -36,8 +36,17 @@ class SpotEntity(
     @Column(name = "hero_image_url", nullable = false, length = 500)
     val heroImageUrl: String,
 
+    @Column(name = "hero_image_path", length = 500)
+    val heroImagePath: String? = null,
+
     @Column(name = "is_weekly_featured", nullable = false)
     val isWeeklyFeatured: Boolean = false,
+
+    @Column(name = "grid_nx")
+    val gridNx: Int? = null,
+
+    @Column(name = "grid_ny")
+    val gridNy: Int? = null,
 
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
