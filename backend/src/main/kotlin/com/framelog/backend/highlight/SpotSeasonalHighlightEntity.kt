@@ -18,10 +18,10 @@ class SpotSeasonalHighlightEntity(
     @Column(name = "spot_id", nullable = false)
     val spotId: Long,
 
-    @Column(name = "month_start", nullable = false)
+    @Column(name = "month_start", nullable = false, columnDefinition = "TINYINT")
     val monthStart: Int,
 
-    @Column(name = "month_end", nullable = false)
+    @Column(name = "month_end", nullable = false, columnDefinition = "TINYINT")
     val monthEnd: Int,
 
     @Column(nullable = false, length = 100)

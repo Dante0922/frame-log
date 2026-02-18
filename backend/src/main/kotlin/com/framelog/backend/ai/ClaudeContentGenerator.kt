@@ -3,7 +3,7 @@ package com.framelog.backend.ai
 import com.framelog.backend.common.error.ApiException
 import com.framelog.backend.common.error.ErrorCode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.core.type.TypeReference
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
@@ -102,7 +102,10 @@ class ClaudeContentGenerator(
 
     private fun parseResponse(response: String): GeneratedSpotMetadata {
         try {
-            val jsonResponse: Map<String, Any> = objectMapper.readValue(response)
+            val jsonResponse = objectMapper.readValue(
+                response,
+                object : TypeReference<Map<String, Any>>() {}
+            )
             val content = (jsonResponse["content"] as? List<*>)?.firstOrNull() as? Map<*, *>
                 ?: throw ApiException(ErrorCode.AI_GENERATION_FAILED, "응답 형식이 올바르지 않습니다.")
 
@@ -111,7 +114,7 @@ class ClaudeContentGenerator(
 
             val cleanedText = text.trim().removePrefix("```json").removeSuffix("```").trim()
 
-            return objectMapper.readValue(cleanedText)
+            return objectMapper.readValue(cleanedText, GeneratedSpotMetadata::class.java)
         } catch (e: Exception) {
             log.error("Failed to parse Claude response: $response", e)
             throw ApiException(ErrorCode.AI_GENERATION_FAILED, "AI 응답 파싱 실패: ${e.message}")
