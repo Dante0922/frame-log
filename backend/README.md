@@ -30,10 +30,15 @@ cd backend
 
 - `~/Desktop/Database/frame-log/mysql`
 
+이미지 스토리지는 아래 경로를 기본값으로 사용합니다.
+
+- `~/Desktop/Database/frame-log/storage`
+
 처음 한 번 디렉토리를 만들어두세요.
 
 ```bash
 mkdir -p ~/Desktop/Database/frame-log/mysql
+mkdir -p ~/Desktop/Database/frame-log/storage
 ```
 
 MySQL 실행:
@@ -45,7 +50,16 @@ docker compose up -d mysql
 
 ## 3. 환경변수
 
-기본값이 설정되어 있어 로컬에서는 선택적으로만 지정하면 됩니다.
+프로젝트 루트(`backend/`)의 `.env`를 자동으로 읽습니다.
+
+초기 설정:
+
+```bash
+cd backend
+cp .env.example .env
+```
+
+`.env`를 열어 로컬 값으로 수정하세요.
 
 | 변수 | 기본값 | 설명 |
 | --- | --- | --- |
@@ -53,14 +67,29 @@ docker compose up -d mysql
 | `DB_URL` | `jdbc:mysql://localhost:3306/framelog?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC` | DB 연결 URL |
 | `DB_USERNAME` | `root` | DB 계정 |
 | `DB_PASSWORD` | `password` | DB 비밀번호 |
-| `CORS_ALLOWED_ORIGINS` | `http://localhost:5173,http://125.129.226.88:5173` | CORS 허용 Origin(콤마 구분) |
+| `CORS_ALLOWED_ORIGINS` | `http://localhost:5173` | CORS 허용 Origin(콤마 구분) |
+| `STORAGE_BASE_PATH` | `~/Desktop/Database/frame-log/storage` | 업로드 이미지 저장 경로 |
+| `ADMIN_USERNAME` | `admin` | 관리자 Basic Auth 아이디 |
+| `ADMIN_PASSWORD` | `changeme` | 관리자 Basic Auth 비밀번호 |
+| `KMA_SERVICE_KEY` | `빈 값` | 기상청 API 인증키 |
+| `CLAUDE_API_KEY` | `빈 값` | Claude API 인증키 |
 
 예시:
 
 ```bash
-export DB_USERNAME=framelog_user
-export DB_PASSWORD=framelog_password
-export CORS_ALLOWED_ORIGINS=http://localhost:5173,https://frame-log.example.com
+cat > .env <<'EOF'
+SERVER_PORT=8080
+DB_URL=jdbc:mysql://localhost:3306/framelog?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+DB_USERNAME=root
+DB_PASSWORD=password
+CORS_ALLOWED_ORIGINS=http://localhost:5173
+STORAGE_BASE_PATH=/Users/darren/Desktop/Database/frame-log/storage
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=changeme
+KMA_SERVICE_KEY=발급받은_키
+CLAUDE_API_KEY=발급받은_키
+EOF
+
 ./gradlew bootRun
 ```
 
