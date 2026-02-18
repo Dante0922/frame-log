@@ -13,29 +13,27 @@ import tools.jackson.databind.ObjectMapper
 import java.util.Base64
 
 @Service
-@ConditionalOnProperty(prefix = "app.ai", name = ["provider"], havingValue = "claude")
-class ClaudeContentGenerator(
-    private val claudeProperties: ClaudeProperties,
+@ConditionalOnProperty(prefix = "app.ai", name = ["provider"], havingValue = "gpt", matchIfMissing = true)
+class OpenAiContentGenerator(
+    private val openAiProperties: OpenAiProperties,
     private val objectMapper: ObjectMapper,
 ) : AiContentGenerator {
     private val log = LoggerFactory.getLogger(javaClass)
     private val restClient = RestClient.create()
 
     override fun generateSpotMetadata(image: MultipartFile): GeneratedSpotMetadata {
-        if (claudeProperties.apiKey.isBlank()) {
-            throw ApiException(ErrorCode.AI_GENERATION_FAILED, "Claude API 키가 설정되지 않았습니다.")
+        if (openAiProperties.apiKey.isBlank()) {
+            throw ApiException(ErrorCode.AI_GENERATION_FAILED, "OpenAI API 키가 설정되지 않았습니다.")
         }
 
         val base64Image = Base64.getEncoder().encodeToString(image.bytes)
         val mediaType = image.contentType ?: "image/jpeg"
-
         val request = buildRequest(base64Image, mediaType)
 
         return try {
             val response = restClient.post()
-                .uri("https://api.anthropic.com/v1/messages")
-                .header("x-api-key", claudeProperties.apiKey)
-                .header("anthropic-version", "2023-06-01")
+                .uri("https://api.openai.com/v1/chat/completions")
+                .header("Authorization", "Bearer ${openAiProperties.apiKey}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .retrieve()
@@ -43,7 +41,7 @@ class ClaudeContentGenerator(
 
             parseResponse(response ?: throw ApiException(ErrorCode.AI_GENERATION_FAILED, "응답이 없습니다."))
         } catch (e: Exception) {
-            log.error("Failed to generate content with Claude API", e)
+            log.error("Failed to generate content with OpenAI API", e)
             throw ApiException(ErrorCode.AI_GENERATION_FAILED, "AI 분석 중 오류가 발생했습니다: ${e.message}")
         }
     }
@@ -78,27 +76,26 @@ class ClaudeContentGenerator(
         """.trimIndent()
 
         return mapOf(
-            "model" to claudeProperties.model,
-            "max_tokens" to claudeProperties.maxTokens,
+            "model" to openAiProperties.model,
+            "max_tokens" to openAiProperties.maxTokens,
+            "temperature" to openAiProperties.temperature,
             "messages" to listOf(
                 mapOf(
                     "role" to "user",
                     "content" to listOf(
                         mapOf(
-                            "type" to "image",
-                            "source" to mapOf(
-                                "type" to "base64",
-                                "media_type" to mediaType,
-                                "data" to base64Image
-                            )
+                            "type" to "text",
+                            "text" to prompt,
                         ),
                         mapOf(
-                            "type" to "text",
-                            "text" to prompt
-                        )
-                    )
-                )
-            )
+                            "type" to "image_url",
+                            "image_url" to mapOf(
+                                "url" to "data:$mediaType;base64,$base64Image",
+                            ),
+                        ),
+                    ),
+                ),
+            ),
         )
     }
 
@@ -106,19 +103,37 @@ class ClaudeContentGenerator(
         try {
             val jsonResponse = objectMapper.readValue(
                 response,
-                object : TypeReference<Map<String, Any>>() {}
+                object : TypeReference<Map<String, Any?>>() {},
             )
-            val content = (jsonResponse["content"] as? List<*>)?.firstOrNull() as? Map<*, *>
+
+            val choices = jsonResponse["choices"] as? List<*>
                 ?: throw ApiException(ErrorCode.AI_GENERATION_FAILED, "응답 형식이 올바르지 않습니다.")
 
-            val text = content["text"] as? String
+            val firstChoice = choices.firstOrNull() as? Map<*, *>
+                ?: throw ApiException(ErrorCode.AI_GENERATION_FAILED, "응답 결과가 비어있습니다.")
+
+            val message = firstChoice["message"] as? Map<*, *>
+                ?: throw ApiException(ErrorCode.AI_GENERATION_FAILED, "메시지 응답이 없습니다.")
+
+            val contentValue = message["content"]
                 ?: throw ApiException(ErrorCode.AI_GENERATION_FAILED, "텍스트 응답이 없습니다.")
+
+            val text = when (contentValue) {
+                is String -> contentValue
+                is List<*> -> {
+                    val textPart = contentValue.firstOrNull { part ->
+                        (part as? Map<*, *>)?.get("type") == "text"
+                    } as? Map<*, *>
+                    textPart?.get("text") as? String
+                }
+                else -> null
+            } ?: throw ApiException(ErrorCode.AI_GENERATION_FAILED, "텍스트 응답이 없습니다.")
 
             val cleanedText = text.trim().removePrefix("```json").removeSuffix("```").trim()
 
             return objectMapper.readValue(cleanedText, GeneratedSpotMetadata::class.java)
         } catch (e: Exception) {
-            log.error("Failed to parse Claude response: $response", e)
+            log.error("Failed to parse OpenAI response: $response", e)
             throw ApiException(ErrorCode.AI_GENERATION_FAILED, "AI 응답 파싱 실패: ${e.message}")
         }
     }

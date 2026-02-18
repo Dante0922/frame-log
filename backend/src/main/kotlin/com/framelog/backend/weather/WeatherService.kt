@@ -23,7 +23,7 @@ class WeatherService(
     private val log = LoggerFactory.getLogger(javaClass)
     private val cacheTtlSeconds = 3 * 60 * 60L // 3 hours
 
-    @Transactional(readOnly = true)
+    @Transactional
     fun getWeather(spotId: Long): WeatherResponse {
         val spot = spotRepository.findById(spotId)
             .orElseThrow { ApiException(ErrorCode.SPOT_NOT_FOUND) }

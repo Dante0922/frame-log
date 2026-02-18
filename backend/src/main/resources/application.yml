@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: backend
+  config:
+    import: optional:file:.env[.properties]
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/framelog?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${DB_USERNAME:root}
@@ -32,7 +34,7 @@ management:
 
 app:
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://125.129.226.88:5173}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   rate-limit:
     review-max-per-minute: 5
   weather:
@@ -43,10 +45,16 @@ app:
     username: ${ADMIN_USERNAME:admin}
     password: ${ADMIN_PASSWORD:changeme}
   storage:
-    base-path: ${STORAGE_BASE_PATH:./uploads}
+    base-path: ${STORAGE_BASE_PATH:${user.home}/Desktop/Database/frame-log/storage}
     base-url: /api/images
     max-file-size-mb: 10
   ai:
+    provider: ${AI_PROVIDER:gpt}
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      model: gpt-4.1-mini
+      max-tokens: 1024
+      temperature: 0.2
     claude:
       api-key: ${CLAUDE_API_KEY:}
       model: claude-sonnet-4-20250514
