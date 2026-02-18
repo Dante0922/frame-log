@@ -1,0 +1,3 @@
+ALTER TABLE spots ADD COLUMN hero_image_path VARCHAR(500) NULL;
+
+ALTER TABLE spot_photos ADD COLUMN image_path VARCHAR(500) NULL;
