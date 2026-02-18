@@ -71,7 +71,9 @@ cp .env.example .env
 | `STORAGE_BASE_PATH` | `~/Desktop/Database/frame-log/storage` | 업로드 이미지 저장 경로 |
 | `ADMIN_USERNAME` | `admin` | 관리자 Basic Auth 아이디 |
 | `ADMIN_PASSWORD` | `changeme` | 관리자 Basic Auth 비밀번호 |
+| `AI_PROVIDER` | `gpt` | AI 구현체 선택(`gpt` 또는 `claude`) |
 | `KMA_SERVICE_KEY` | `빈 값` | 기상청 API 인증키 |
+| `OPENAI_API_KEY` | `빈 값` | OpenAI API 인증키(`AI_PROVIDER=gpt`) |
 | `CLAUDE_API_KEY` | `빈 값` | Claude API 인증키 |
 
 예시:
@@ -86,8 +88,11 @@ CORS_ALLOWED_ORIGINS=http://localhost:5173
 STORAGE_BASE_PATH=/Users/darren/Desktop/Database/frame-log/storage
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=changeme
+AI_PROVIDER=gpt
 KMA_SERVICE_KEY=발급받은_키
-CLAUDE_API_KEY=발급받은_키
+OPENAI_API_KEY=발급받은_키
+# AI_PROVIDER=claude 로 바꾸면 Claude 구현체 사용
+# CLAUDE_API_KEY=발급받은_키
 EOF
 
 ./gradlew bootRun
