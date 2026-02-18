@@ -244,11 +244,14 @@ Flyway 마이그레이션 파일:
 ## CORS
 
 허용 Origin:
-- `http://localhost:5173`
-- `http://125.129.226.88:5173`
+- 기본값: `http://localhost:5173`, `http://125.129.226.88:5173`
+- 환경변수: `CORS_ALLOWED_ORIGINS` (콤마 구분)
+  - 예시: `CORS_ALLOWED_ORIGINS=http://localhost:5173,https://frame-log.example.com`
 
 설정 위치:
 - `backend/src/main/kotlin/com/framelog/backend/config/WebConfig.kt`
+- `backend/src/main/kotlin/com/framelog/backend/config/CorsProperties.kt`
+- `backend/src/main/resources/application.yml`
 
 ## 실행 및 테스트
 
