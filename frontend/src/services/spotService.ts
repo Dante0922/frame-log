@@ -3,7 +3,7 @@ import {
   getAllSpots,
   getWeeklyFeaturedSpot,
   getSpotById,
-  getPhotosBySpotId
+  getPhotosBySpotId,
 } from '../utils/mockData';
 import type { Spot, SpotListResponse, SpotPhoto, SpotPhotoListResponse } from '../types';
 
@@ -32,31 +32,51 @@ export const fetchWeeklyFeaturedSpot = async (): Promise<Spot | null> => {
 };
 
 /**
- * 전체 출사지 목록 조회
+ * 페이지 기반 출사지 목록 조회
  */
-export const fetchSpotList = async (
+export const fetchSpotListPage = async (
   options: FetchSpotListOptions = {},
-): Promise<Spot[]> => {
-  if (useMockData()) {
-    // Mock 데이터 사용
-    return Promise.resolve(getAllSpots());
-  }
+): Promise<SpotListResponse> => {
+  const { page = 0, size = 20 } = options;
 
-  const { page, size } = options;
+  if (useMockData()) {
+    const allSpots = getAllSpots();
+    const start = page * size;
+    const end = start + size;
+
+    return Promise.resolve({
+      spots: allSpots.slice(start, end),
+      total: allSpots.length,
+    });
+  }
 
   // 실제 API 호출
   try {
     const response = await apiClient.get<SpotListResponse>('/spots', {
       params: {
-        ...(typeof page === 'number' ? { page } : {}),
-        ...(typeof size === 'number' ? { size } : {}),
+        page,
+        size,
       },
     });
-    return response.data.spots;
+
+    return response.data;
   } catch (error) {
-    console.error('Failed to fetch spot list:', error);
-    return [];
+    console.error('Failed to fetch spot list page:', error);
+    return {
+      spots: [],
+      total: 0,
+    };
   }
+};
+
+/**
+ * 전체 출사지 목록 조회
+ */
+export const fetchSpotList = async (
+  options: FetchSpotListOptions = {},
+): Promise<Spot[]> => {
+  const response = await fetchSpotListPage(options);
+  return response.spots;
 };
 
 /**

@@ -1,28 +1,83 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Header } from '../components/layout/Header';
-import { fetchSpotList } from '../services/spotService';
+import { fetchSpotListPage } from '../services/spotService';
 import type { Spot } from '../types';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const PAGE_SIZE = 8;
+
 export const SpotList = () => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
   const [spots, setSpots] = useState<Spot[]>([]);
+  const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  const loadInitialSpots = useCallback(async () => {
+    setLoading(true);
+
+    const response = await fetchSpotListPage({ page: 0, size: PAGE_SIZE });
+
+    setSpots(response.spots);
+    setPage(0);
+    setHasMore(response.spots.length === PAGE_SIZE);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
-    const loadSpots = async () => {
-      setLoading(true);
-      const data = await fetchSpotList();
-      setSpots(data);
-      setLoading(false);
+    void loadInitialSpots();
+  }, [loadInitialSpots]);
+
+  const loadMoreSpots = useCallback(async () => {
+    if (loading || loadingMore || !hasMore) {
+      return;
+    }
+
+    setLoadingMore(true);
+
+    const nextPage = page + 1;
+    const response = await fetchSpotListPage({ page: nextPage, size: PAGE_SIZE });
+
+    setSpots((prev) => [...prev, ...response.spots]);
+    setPage(nextPage);
+    setHasMore(response.spots.length === PAGE_SIZE);
+    setLoadingMore(false);
+  }, [hasMore, loading, loadingMore, page]);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          void loadMoreSpots();
+        }
+      },
+      {
+        root: null,
+        rootMargin: '240px 0px',
+        threshold: 0,
+      },
+    );
+
+    observer.observe(sentinel);
+
+    return () => {
+      observer.disconnect();
     };
-    loadSpots();
-  }, []);
+  }, [loadMoreSpots]);
 
   useEffect(() => {
     if (loading) return;
@@ -43,13 +98,13 @@ export const SpotList = () => {
               trigger: item,
               start: 'top 85%',
             },
-          }
+          },
         );
       });
     }, containerRef);
 
     return () => ctx.revert();
-  }, [loading]);
+  }, [loading, spots.length]);
 
   const handleSpotClick = (spotId: number) => {
     navigate(`/spots/${spotId}`);
@@ -76,7 +131,7 @@ export const SpotList = () => {
             전체 출사지
           </h1>
           <p className="text-gray-400 text-sm md:text-base">
-            전국의 출사지를 탐색해보세요
+            스크롤하면 8개씩 추가로 불러옵니다
           </p>
         </div>
 
@@ -124,6 +179,13 @@ export const SpotList = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        <div ref={sentinelRef} className="h-14 flex items-center justify-center">
+          {loadingMore && <span className="text-sm text-gray-400">추가 스팟 불러오는 중...</span>}
+          {!loadingMore && !hasMore && (
+            <span className="text-sm text-gray-500">모든 스팟을 불러왔습니다.</span>
+          )}
         </div>
       </main>
     </div>

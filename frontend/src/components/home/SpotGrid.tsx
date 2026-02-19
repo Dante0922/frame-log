@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -6,7 +6,7 @@ import type { Spot } from '../../types';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const BATCH_SIZE = 4;
+const DISPLAY_SPOT_COUNT = 4;
 
 interface SpotGridProps {
   spots: Spot[];
@@ -24,38 +24,12 @@ export const SpotGrid = ({
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const [startIndex, setStartIndex] = useState(0);
-
-  const spotPool = useMemo(
-    () => spots.filter((spot) => spot.id !== featuredSpotId),
-    [spots, featuredSpotId],
-  );
-
-  const canRefresh = spotPool.length > BATCH_SIZE;
-  const normalizedStartIndex =
-    canRefresh && spotPool.length > 0 ? startIndex % spotPool.length : 0;
 
   const visibleSpots = useMemo(() => {
-    if (spotPool.length === 0) {
-      return [];
-    }
-
-    if (!canRefresh) {
-      return spotPool;
-    }
-
-    const endIndex = normalizedStartIndex + BATCH_SIZE;
-
-    if (endIndex <= spotPool.length) {
-      return spotPool.slice(normalizedStartIndex, endIndex);
-    }
-
-    const wrapSize = endIndex - spotPool.length;
-    return [
-      ...spotPool.slice(normalizedStartIndex),
-      ...spotPool.slice(0, wrapSize),
-    ];
-  }, [spotPool, normalizedStartIndex, canRefresh]);
+    return spots
+      .filter((spot) => spot.id !== featuredSpotId)
+      .slice(0, DISPLAY_SPOT_COUNT);
+  }, [spots, featuredSpotId]);
 
   useEffect(() => {
     if (visibleSpots.length === 0) return;
@@ -118,15 +92,6 @@ export const SpotGrid = ({
     navigate(`/spots/${spotId}`);
   };
 
-  const handleRefresh = () => {
-    if (!canRefresh) {
-      return;
-    }
-
-    setStartIndex((prev) => (prev + BATCH_SIZE) % spotPool.length);
-    onRefresh?.();
-  };
-
   return (
     <section
       ref={containerRef}
@@ -138,7 +103,7 @@ export const SpotGrid = ({
             최근 등록
           </h3>
           <span className="text-xs md:text-sm text-gray-500 tracking-wide block mt-1">
-            맨 아래 갱신 버튼으로 다른 스팟을 불러올 수 있어요
+            하단 갱신 버튼을 누르면 다른 스팟을 불러옵니다
           </span>
         </div>
       </div>
@@ -182,11 +147,11 @@ export const SpotGrid = ({
       <div className="pt-12 md:pt-14 flex justify-center">
         <button
           type="button"
-          onClick={handleRefresh}
-          disabled={!canRefresh || loading}
+          onClick={onRefresh}
+          disabled={loading}
           className="px-6 py-3 md:px-8 md:py-4 rounded-full border border-white/20 text-white text-sm md:text-base font-medium transition-colors hover:bg-white hover:text-brand-black disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {canRefresh ? '갱신해서 다른 스팟 보기' : '표시 가능한 스팟이 충분하지 않습니다'}
+          갱신해서 다른 스팟 보기
         </button>
       </div>
     </section>

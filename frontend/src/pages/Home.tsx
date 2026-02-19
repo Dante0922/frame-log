@@ -1,63 +1,76 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLenis } from '../hooks/useLenis';
 import { Header } from '../components/layout/Header';
 import { Hero } from '../components/home/Hero';
 import { SpotGrid } from '../components/home/SpotGrid';
 import { Reviews } from '../components/home/Reviews';
-import { fetchSpotList } from '../services/spotService';
+import { fetchSpotList, fetchWeeklyFeaturedSpot } from '../services/spotService';
 import type { Spot } from '../types';
+
+const HOME_SPOT_PAGE_SIZE = 5;
 
 export const Home = () => {
   useLenis();
 
-  const [allSpots, setAllSpots] = useState<Spot[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [featuredIndex, setFeaturedIndex] = useState(0);
+  const [featuredSpot, setFeaturedSpot] = useState<Spot | null>(null);
+  const [homeSpots, setHomeSpots] = useState<Spot[]>([]);
+  const [spotPage, setSpotPage] = useState(0);
+  const [loadingHero, setLoadingHero] = useState(true);
+  const [loadingGrid, setLoadingGrid] = useState(true);
 
   useEffect(() => {
-    const loadSpots = async () => {
-      setLoading(true);
-      const spots = await fetchSpotList({ page: 0, size: 100 });
-      setAllSpots(spots);
-      setLoading(false);
+    const loadFeaturedSpot = async () => {
+      setLoadingHero(true);
+      const spot = await fetchWeeklyFeaturedSpot();
+      setFeaturedSpot(spot);
+      setLoadingHero(false);
     };
 
-    void loadSpots();
+    void loadFeaturedSpot();
   }, []);
 
-  const featuredSpots = useMemo(
-    () => allSpots.filter((spot) => spot.isWeeklyFeatured),
-    [allSpots],
-  );
+  useEffect(() => {
+    const loadHomeSpots = async () => {
+      setLoadingGrid(true);
 
-  const normalizedFeaturedIndex =
-    featuredSpots.length > 0 ? featuredIndex % featuredSpots.length : 0;
+      const spots = await fetchSpotList({
+        page: spotPage,
+        size: HOME_SPOT_PAGE_SIZE,
+      });
 
-  const featuredSpot = useMemo(() => {
-    if (featuredSpots.length > 0) {
-      return featuredSpots[normalizedFeaturedIndex] ?? null;
-    }
+      if (spots.length > 0) {
+        setHomeSpots(spots);
+        setLoadingGrid(false);
+        return;
+      }
 
-    return allSpots[0] ?? null;
-  }, [allSpots, featuredSpots, normalizedFeaturedIndex]);
+      if (spotPage !== 0) {
+        const fallbackSpots = await fetchSpotList({ page: 0, size: HOME_SPOT_PAGE_SIZE });
+        setHomeSpots(fallbackSpots);
+        setSpotPage(0);
+      } else {
+        setHomeSpots([]);
+      }
+
+      setLoadingGrid(false);
+    };
+
+    void loadHomeSpots();
+  }, [spotPage]);
 
   const handleRefresh = () => {
-    if (featuredSpots.length <= 1) {
-      return;
-    }
-
-    setFeaturedIndex((prev) => (prev + 1) % featuredSpots.length);
+    setSpotPage((prev) => prev + 1);
   };
 
   return (
     <div className="relative min-h-screen bg-brand-black">
       <Header />
       <main>
-        <Hero featuredSpot={featuredSpot} loading={loading} />
+        <Hero featuredSpot={featuredSpot} loading={loadingHero} />
         <SpotGrid
-          spots={allSpots}
+          spots={homeSpots}
           featuredSpotId={featuredSpot?.id}
-          loading={loading}
+          loading={loadingGrid}
           onRefresh={handleRefresh}
         />
         <Reviews />
