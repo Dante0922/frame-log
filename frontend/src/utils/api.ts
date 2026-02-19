@@ -4,7 +4,7 @@ import axios, { type AxiosInstance, type AxiosError } from 'axios';
  * Axios 인스턴스 설정
  */
 const createApiClient = (): AxiosInstance => {
-  const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+  const baseURL = import.meta.env.VITE_API_BASE_URL || '/api';
 
   const client = axios.create({
     baseURL,
