@@ -7,6 +7,11 @@ import {
 } from '../utils/mockData';
 import type { Spot, SpotListResponse, SpotPhoto, SpotPhotoListResponse } from '../types';
 
+interface FetchSpotListOptions {
+  page?: number;
+  size?: number;
+}
+
 /**
  * 금주의 추천 출사지 조회
  */
@@ -29,15 +34,24 @@ export const fetchWeeklyFeaturedSpot = async (): Promise<Spot | null> => {
 /**
  * 전체 출사지 목록 조회
  */
-export const fetchSpotList = async (): Promise<Spot[]> => {
+export const fetchSpotList = async (
+  options: FetchSpotListOptions = {},
+): Promise<Spot[]> => {
   if (useMockData()) {
     // Mock 데이터 사용
     return Promise.resolve(getAllSpots());
   }
 
+  const { page, size } = options;
+
   // 실제 API 호출
   try {
-    const response = await apiClient.get<SpotListResponse>('/spots');
+    const response = await apiClient.get<SpotListResponse>('/spots', {
+      params: {
+        ...(typeof page === 'number' ? { page } : {}),
+        ...(typeof size === 'number' ? { size } : {}),
+      },
+    });
     return response.data.spots;
   } catch (error) {
     console.error('Failed to fetch spot list:', error);
